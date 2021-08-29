@@ -30,10 +30,11 @@ class YamlConfig():
     def value(self, option):
         self.__readconf__()
         try:
-            type(settings[option])
-            return(str(settings[option]))
+            type(self.settings[option])
         except:
             return(None)
+        else:
+            return (self.settings[option])
 
     def setValue(self, option, value):
         self.__readconf__()
