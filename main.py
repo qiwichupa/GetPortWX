@@ -5,12 +5,51 @@ import os
 import wx
 import yaml
 
+class YamlConfig():
+    def __init__(self, configfile):
+        self.configfile = configfile
+        # check|create dir
+        try:
+            os.makedirs(os.path.dirname(self.configfile),exist_ok=True)
+        except Exception as e:
+            print(e)
+        # check|create file
+        try:
+            with open(self.configfile) as f:
+                self.settings = yaml.load(f, Loader=yaml.FullLoader)
+        except:
+            with open(self.configfile, 'w') as f:
+                f.write('')
+
+    def __readconf__(self):
+        with open(self.configfile) as f:
+            self.settings = yaml.load(f, Loader=yaml.FullLoader)
+        if type(self.settings) is not dict:
+            self.settings = {}
+
+    def load(self, option):
+        self.__readconf__()
+        try:
+            type(settings[option])
+            return(str(settings[option]))
+        except:
+            return(None)
+
+    def save(self, option, value):
+        self.__readconf__()
+        self.settings[option] = value
+        with open(self.configfile, 'w') as f:
+            self.settings = yaml.dump(self.settings, stream=f,
+                               default_flow_style=False, sort_keys=False)
+
+
 class MainWindow(wx.Frame):
 
     def __init__(self, parent, title, configfile):
-        wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
-
         self.configfile = configfile
+        self.init_settings()
+
+        wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
         mainpanel = wx.Panel(self)
 
         self.trans_button = wx.Button(mainpanel, label='Ok')
@@ -26,36 +65,15 @@ class MainWindow(wx.Frame):
         self.SetMinSize((200, 200))
         self.SetSize((200, 200))
         self.Show(True)
-        self.settings_init()
 
     def close(self, event):
         pass
 
-    def settings_init(self):
-        '''Load settings and create default parameters'''
-        self.settings_load()
-        if type(self.settings) is not dict:
-            self.settings = {}
-        try:
-            type(self.settings['gw'])
-        except:
-            self.settings['gw'] = '192.168.1.1'
-        self.settings_save()
+    def init_settings(self):
+        self.settings = YamlConfig(self.configfile)
+        if self.settings.load('gw') is None:
+            self.settings.save('gw', '192.168.1.1')
 
-    def settings_load(self):
-        try:
-            with open(self.configfile) as f:
-                self.settings = yaml.load(f, Loader=yaml.FullLoader)
-        except:
-            with open(self.configfile, 'w') as f:
-                f.write('')
-            with open(self.configfile) as f:
-                self.settings = yaml.load(f, Loader=yaml.FullLoader)
-
-    def settings_save(self):
-        with open(self.configfile, 'w') as f:
-            self.settings = yaml.dump(self.settings, stream=f,
-                               default_flow_style=False, sort_keys=False)
 
 class MainApp(wx.App):
     def OnInit(self):
