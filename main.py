@@ -27,7 +27,7 @@ class YamlConfig():
         if type(self.settings) is not dict:
             self.settings = {}
 
-    def load(self, option):
+    def value(self, option):
         self.__readconf__()
         try:
             type(settings[option])
@@ -35,7 +35,7 @@ class YamlConfig():
         except:
             return(None)
 
-    def save(self, option, value):
+    def setValue(self, option, value):
         self.__readconf__()
         self.settings[option] = value
         with open(self.configfile, 'w') as f:
@@ -71,8 +71,8 @@ class MainWindow(wx.Frame):
 
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)
-        if self.settings.load('gw') is None:
-            self.settings.save('gw', '192.168.1.1')
+        if not self.settings.value('gw'):
+            self.settings.setValue('gw', '192.168.1.1')
 
 
 class MainApp(wx.App):
