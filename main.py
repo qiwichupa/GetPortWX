@@ -5,6 +5,7 @@ import sys
 import os
 import wx
 from yaml_config import YamlConfig
+import appdirs
 
 
 
@@ -76,11 +77,7 @@ class MainApp(wx.App):
         except:
             appPath = os.path.dirname(os.path.abspath(__file__))
         # set "data" in program dir as working directory
-        appDataPath = os.path.join(appPath, "data")
-        try:
-            os.makedirs(appDataPath, exist_ok=True)
-        except:
-            appDataPath = appPath
+        appDataPath = appdirs.user_config_dir(appname, False)
         configfile =  os.path.join(appDataPath, 'settings.yaml')
 
         self.frame = MainWindow(None, title, configfile, appPath)
