@@ -44,7 +44,7 @@ class MainWindow(wx.Frame):
         c = self.settings.value('community')
         m = self.settings.value('mac')
         cmd = ['python',
-               self.appPath + '/port_scan.py',
+               os.path.join(self.appPath, 'port_scan.py'),
                '-d', d,
                '-c', c,
                '-m', m]
