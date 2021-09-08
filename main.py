@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 
+from subprocess import Popen, PIPE
 import sys
 import os
 import wx
 from yaml_config import YamlConfig
 
 
+
 class MainWindow(wx.Frame):
 
-    def __init__(self, parent, title, configfile):
+    def __init__(self, parent, title, configfile, appPath):
         self.configfile = configfile
+        self.appPath = appPath
         self.init_settings()
 
         wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
         mainpanel = wx.Panel(self)
 
         self.trans_button = wx.Button(mainpanel, label='Ok')
-        self.trans_button.Bind(wx.EVT_BUTTON, self.close)
+        self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
 
         sizer = wx.GridBagSizer()
         sizer.Add(self.trans_button, pos=(0, 0), flag=wx.RIGHT|wx.EXPAND)
@@ -32,10 +35,26 @@ class MainWindow(wx.Frame):
     def close(self, event):
         pass
 
+    def find_port(self, event):
+        d = self.settings.value('gw')
+        c = self.settings.value('community')
+        m = '00 01 23 04 44 44'
+        cmd = ['python',
+               self.appPath + '/port_scan.py',
+               '-d', d,
+               '-c', c,
+               '-m', m]
+
+        process = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        stdout, stderr = process.communicate()
+        print(stdout)
+
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)
         if not self.settings.value('gw'):
             self.settings.setValue('gw', '192.168.1.1')
+        if not self.settings.value('community'):
+            self.settings.setValue('community', 'public')
 
 
 class MainApp(wx.App):
@@ -59,7 +78,7 @@ class MainApp(wx.App):
             appDataPath = appPath
         configfile =  os.path.join(appDataPath, 'settings.yaml')
 
-        self.frame = MainWindow(None, title, configfile)
+        self.frame = MainWindow(None, title, configfile, appPath)
         return(True)
 
 if __name__ == "__main__":
