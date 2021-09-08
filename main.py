@@ -21,9 +21,12 @@ class MainWindow(wx.Frame):
         self.trans_button = wx.Button(mainpanel, label='Ok')
         self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
 
+        self.text_output = wx.TextCtrl(mainpanel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
+
         sizer = wx.GridBagSizer()
-        sizer.Add(self.trans_button, pos=(0, 0), flag=wx.RIGHT|wx.EXPAND)
-        sizer.AddGrowableCol(0)
+        sizer.Add(self.trans_button, pos=(0, 0), flag=wx.LEFT|wx.EXPAND)
+        sizer.Add(self.text_output, pos=(0, 1), flag=wx.RIGHT|wx.EXPAND)
+        sizer.AddGrowableCol(1)
         sizer.AddGrowableRow(0)
         mainpanel.SetSizer(sizer)
         sizer.Fit(self)
@@ -47,7 +50,7 @@ class MainWindow(wx.Frame):
 
         process = Popen(cmd, stdout=PIPE, stderr=PIPE)
         stdout, stderr = process.communicate()
-        print(stdout)
+        self.text_output.AppendText(stdout)
 
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)
