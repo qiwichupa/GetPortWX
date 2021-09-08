@@ -41,7 +41,7 @@ class MainWindow(wx.Frame):
     def find_port(self, event):
         d = self.settings.value('gw')
         c = self.settings.value('community')
-        m = '00 01 23 04 44 44'
+        m = self.settings.value('mac')
         cmd = ['python',
                self.appPath + '/port_scan.py',
                '-d', d,
@@ -58,6 +58,8 @@ class MainWindow(wx.Frame):
             self.settings.setValue('gw', '192.168.1.1')
         if not self.settings.value('community'):
             self.settings.setValue('community', 'public')
+        if not self.settings.value('mac'):
+            self.settings.setValue('mac', '00 00 00 00 00 00')
 
 
 class MainApp(wx.App):
