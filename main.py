@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-from subprocess import Popen, PIPE
 import sys
 import os
-import base64
 import wx
 from yaml_config import YamlConfig
 import appdirs
 from port_scan import PortScan
 
+import utils
 
 class MainWindow(wx.Frame):
 
@@ -45,20 +44,11 @@ class MainWindow(wx.Frame):
         c = self.settings.value('community')
         m = self.settings.value('mac')
 
-        '''
-        filepath = os.path.join(self.appPath, 'port_scan.py')
-        cmd = ['python',
-               filepath,
-               '-d', d,
-               '-c', c,
-               '-m', m]
-
-        process = Popen(cmd,  stdout=PIPE, stderr=PIPE)
-        stdout, stderr = process.communicate()
-        '''
         portscan = PortScan(c, d, m)
-        stdout = portscan.main()
-        self.text_output.AppendText(stdout)
+        out = utils.StringIO()
+        with utils.captureStdOut(out):
+            portscan.main()
+        self.text_output.AppendText(out.getvalue())
 
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)

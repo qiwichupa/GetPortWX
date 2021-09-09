@@ -89,7 +89,7 @@ class PortScan():
             self.community = comm
             self.switch = switch
             self.sbrand = None
-            self.snmperror, self.switchtype = get(self.switch, self.community, oTable["sysDescr"], 2)
+            self.snmperror, self.switchtype = parent.get(self.switch, self.community, oTable["sysDescr"], 2)
             if (re.search("Cisco", self.switchtype, re.IGNORECASE)):
                 self.sbrand = "Cisco"
             elif (re.search("PROCURVE", self.switchtype, re.IGNORECASE)):
@@ -592,7 +592,6 @@ class PortScan():
                         self.new_ifIndex = ifIndex_pagp_list[0]
             return (self.new_ifIndex, count)
 
-
     cdpTable = {
         "cdpCacheAddress": (1, 3, 6, 1, 4, 1, 9, 9, 23, 1, 2, 1, 1, 4)  # CISCO-CDP-MIB
         }
@@ -649,7 +648,7 @@ class PortScan():
         self.mac = mac
         self.ip = None
         self.pname = None
-        self.help = 'a'
+        self.help = None
         self.report = None
         self.follow = None
         self.verbose = None
@@ -672,17 +671,18 @@ class PortScan():
 
         get = self.get
 
+
         if verbose: print(ctime(), " Main Started ")
         if (community and device and (mac or ip or pname or report)):
             snmperror, switchtype = get(device, community, oTable["sysDescr"], 0)
             switchtype = str(switchtype)
             if snmperror:
                 print(snmperror, "Either Wrong Community String or Firewall or SNMP Not Running")
-                sys.exit(1)
+                return True#sys.exit(1)
             sbrand = None
             scanned_neighbor = False
             dswitch = device
-            switch = followSwitch(dswitch, community)
+            switch = self.followSwitch(dswitch, community)
             entIpList = {}
             ipList = []
             entaddr = walk(device, community, oTable["ipAdEntAddr"])
