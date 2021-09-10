@@ -466,9 +466,13 @@ class followSwitch(object):
                     snmperror, ifIndex = get(self.switch, comm, oTable["dot1dBasePortIfIndex"], 2, bIndex)
                     if snmperror:
                         print(snmperror)
-                        sys.exit(1)
+                        return True#sys.exit(1)
                     ifIndex = int(ifIndex)
-                    ifSpeed = self.speedH[ifIndex]
+                    try:
+                        ifSpeed = self.speedH[ifIndex]
+                    except Exception as e:
+                        print(e)
+                        return True
                     try:
                         ifDuplex = self.duplexH[ifIndex]
                     except:
@@ -707,7 +711,7 @@ class followSwitch(object):
         snmperror, switchtype = get(self.cswitch, self.community, oTable["sysDescr"], 2)
         if snmperror:
             print("Wrong Community String %s for device %s" % (self.community, self.cswitch))
-            sys.exit(1)
+            return True#sys.exit(1)
         get_nmac = followSwitch(self.cswitch, self.community)
         get_nmac.set_duplex()
         get_nmac.set_speed()
@@ -801,14 +805,14 @@ class PortScan():
                     nmac, valid = verify_mac(nmac)
                     if not valid:
                         print("Your mac %s is in the wrong format" % (mac))
-                        sys.exit(1)
+                        return True#sys.exit(1)
                     nip = switch.findIpByMac(nmac)
                 if ip:
                     nip = ip
                     nmac = switch.findMacByIp(nip)
                     if nmac == None:
                         print("This IP Address, %s , is not in the ARP table" % (ip))
-                        sys.exit(1)
+                        return True#sys.exit(1)
 
                 if (re.search("Cisco|PROCURVE|HP|Nortel|ERS|Foundry", switchtype, re.IGNORECASE)):
                     mTable, ifIndex = switch.find_mac(nmac, nip)
@@ -960,7 +964,7 @@ class PortScan():
         switchtype = str(switchtype)
         if snmperror:
             print(snmperror, "Either Wrong Community String or Firewall or SNMP Not Running")
-            sys.exit(1)
+            return True#sys.exit(1)
         switch = followSwitch( dev, community )
         switch.set_duplex()
         switch.set_speed()
