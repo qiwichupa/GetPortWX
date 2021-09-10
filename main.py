@@ -5,7 +5,7 @@ import os
 import wx
 from yaml_config import YamlConfig
 import appdirs
-from port_scan import PortScan
+from port_scan import *
 
 import utils
 
@@ -44,7 +44,7 @@ class MainWindow(wx.Frame):
         c = self.settings.value('community')
         m = self.settings.value('mac')
 
-        portscan = PortScan(c, d, m)
+        portscan = PortScan(d, c, m)
         out = utils.StringIO()
         with utils.captureStdOut(out):
             portscan.main()
