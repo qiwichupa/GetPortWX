@@ -138,7 +138,10 @@ def usage():
 
 
     """)
-    exit()
+    if __name__ == '__main__':
+        sys.exit(0)
+    else:
+        return
 
 
 def main():
@@ -148,7 +151,10 @@ def main():
         switchtype = str(switchtype)
         if snmperror:
             print(snmperror, "Either Wrong Community String or Firewall or SNMP Not Running")
-            exit_error()
+            if __name__ == '__main__':
+                sys.exit(1)
+            else:
+                return
         sbrand = None
         scanned_neighbor = False
         dswitch = device
@@ -175,14 +181,20 @@ def main():
                 nmac, valid = verify_mac( nmac )
                 if not valid:
                     print("Your mac %s is in the wrong format" % (mac))
-                    exit_error()
+                    if __name__ == '__main__':
+                        sys.exit(1)
+                    else:
+                        return
                 nip = switch.findIpByMac( nmac )
             if ip:
                 nip = ip
                 nmac = switch.findMacByIp( nip )
                 if nmac == None:
                     print("This IP Address, %s , is not in the ARP table" % (ip))
-                    exit_error()
+                    if __name__ == '__main__':
+                        sys.exit(1)
+                    else:
+                        return
 
             if ( re.search("Cisco|PROCURVE|HP|Nortel|ERS|Foundry", switchtype, re.IGNORECASE ) ):
                 mTable, ifIndex = switch.find_mac( nmac, nip )
@@ -284,7 +296,10 @@ def write_report( dev, entIpList, tcount = [] ):
     switchtype = str(switchtype)
     if snmperror:
         print(snmperror, "Either Wrong Community String or Firewall or SNMP Not Running")
-        exit_error()
+        if __name__ == '__main__':
+            sys.exit(1)
+        else:
+            return
     switch = followSwitch( dev, community )
     switch.set_duplex()
     switch.set_speed()
@@ -713,7 +728,10 @@ class followSwitch(object):
                     snmperror, ifIndex = get( self.switch, comm, oTable["dot1dBasePortIfIndex"], 2, bIndex )
                     if snmperror:
                         print(snmperror)
-                        exit_error()
+                        if __name__ == '__main__':
+                            sys.exit(1)
+                        else:
+                            return
                     ifIndex = int(ifIndex)
                     ifSpeed = self.speedH[ifIndex]
                     try:
@@ -956,7 +974,10 @@ class followSwitch(object):
         snmperror, switchtype = get( self.cswitch, self.community, oTable["sysDescr"], 2)
         if snmperror:
             print("Wrong Community String %s for device %s" % ( self.community, self.cswitch ))
-            exit_error()
+            if __name__ == '__main__':
+                sys.exit(1)
+            else:
+                return
         get_nmac = followSwitch( self.cswitch, self.community )
         get_nmac.set_duplex()
         get_nmac.set_speed()
