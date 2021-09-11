@@ -1,13 +1,111 @@
 #!/usr/bin/env python3
 
-import sys
+import re
 import os
 import wx
 from yaml_config import YamlConfig
 import appdirs
+import regex
 from port_scan import *
 
 import utils
+
+
+class IPValidator(wx.Validator):
+    """ This validator is used to ensure that the user has entered a float
+        into the text control of MyFrame.
+    """
+
+    def __init__(self):
+        """ Standard constructor.
+        """
+        wx.Validator.__init__(self)
+
+    def Clone(self):
+        """ Standard cloner.
+
+            Note that every validator must implement the Clone() method.
+        """
+        return IPValidator()
+
+    def Validate(self, win):
+        textCtrl = self.GetWindow()
+        string = textCtrl.GetValue().strip()
+        pattern = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.){3}(?2)$"
+        if regex.match(pattern, string):
+            textCtrl.SetValue(string)
+            return True
+        else:
+            return False
+
+    def TransferToWindow(self):
+        """ Transfer data from validator to window.
+
+            The default implementation returns False, indicating that an error
+            occurred.  We simply return True, as we don't do any data transfer.
+        """
+        return True  # Prevent wxDialog from complaining.
+
+    def TransferFromWindow(self):
+        """ Transfer data from window to validator.
+
+            The default implementation returns False, indicating that an error
+            occurred.  We simply return True, as we don't do any data transfer.
+        """
+        return True  # Prevent wxDialog from complaining.
+
+class MACValidator(wx.Validator):
+    """ This validator is used to ensure that the user has entered a float
+        into the text control of MyFrame.
+    """
+
+    def __init__(self):
+        """ Standard constructor.
+        """
+        wx.Validator.__init__(self)
+
+    def Clone(self):
+        """ Standard cloner.
+
+            Note that every validator must implement the Clone() method.
+        """
+        return MACValidator()
+
+    def Validate(self, win):
+        textCtrl = self.GetWindow()
+        try:
+            string = self.format_mac(textCtrl.GetValue())
+        except:
+            return False
+        else:
+            textCtrl.SetValue(string)
+            return True
+
+    def format_mac(self, mac: str) -> str:
+        mac = re.sub('[.:-]', '', mac).lower()  # remove delimiters and convert to lower case
+        mac = ''.join(mac.split())  # remove whitespaces
+        assert len(mac) == 12  # length should be now exactly 12 (eg. 008041aefd7e)
+        assert mac.isalnum()  # should only contain letters and numbers
+        # convert mac in canonical form (eg. 00:80:41:ae:fd:7e)
+        mac = ":".join(["%s" % (mac[i:i + 2]) for i in range(0, 12, 2)])
+        return mac
+
+
+    def TransferToWindow(self):
+        """ Transfer data from validator to window.
+
+            The default implementation returns False, indicating that an error
+            occurred.  We simply return True, as we don't do any data transfer.
+        """
+        return True  # Prevent wxDialog from complaining.
+
+    def TransferFromWindow(self):
+        """ Transfer data from window to validator.
+
+            The default implementation returns False, indicating that an error
+            occurred.  We simply return True, as we don't do any data transfer.
+        """
+        return True  # Prevent wxDialog from complaining.
 
 class MainWindow(wx.Frame):
 
@@ -22,13 +120,13 @@ class MainWindow(wx.Frame):
         self.spacer = wx.StaticText(mainpanel, label="")
 
         self.device_label = wx.StaticText(mainpanel, label="Router:")
-        self.device_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
+        self.device_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=IPValidator())
 
         self.community_label = wx.StaticText(mainpanel, label="SNMP community:")
         self.community_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
 
         self.mac_label = wx.StaticText(mainpanel,  label="MAC address:")
-        self.mac_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
+        self.mac_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=MACValidator())
 
         self.trans_button = wx.Button(mainpanel, label='Ok')
         self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
@@ -61,13 +159,25 @@ class MainWindow(wx.Frame):
     def close(self, event):
         pass
 
+
     def find_port(self, event):
+        if self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
+            pass
+        else:
+            self.text_output.AppendText("Not valid IP\n")
+            return
+
+        if self.device_ctrl.GetValidator().Validate(self.device_ctrl):
+            pass
+        else:
+            self.text_output.AppendText("Not valid IP\n")
+            return
+
         d = self.settings.value('gw')
         c = self.settings.value('community')
         m = self.settings.value('mac')
 
         portscan = PortScan(device=d, community=c, mac=m)
-        #portscan = PortScan(help=True)
         out = utils.StringIO()
         with utils.captureStdOut(out):
             portscan.run()

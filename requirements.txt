@@ -2,3 +2,4 @@ wxPython~=4.1.1
 PyYAML~=5.4.1
 pysnmp~=4.4.12
 appdirs~=1.4.4
+regex~=2021.8
