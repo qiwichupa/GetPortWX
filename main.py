@@ -176,18 +176,21 @@ class MainWindow(wx.Frame):
             pass
         else:
             self.text_output.AppendText("Not valid MAC\n")
+            self.separator()
             return
 
         if len(self.ip_ctrl.GetValue().strip()) == 0 or self.ip_ctrl.GetValidator().Validate(self.ip_ctrl):
             pass
         else:
             self.text_output.AppendText("Not valid IP\n")
+            self.separator()
             return
 
         if self.device_ctrl.GetValidator().Validate(self.device_ctrl):
             pass
         else:
             self.text_output.AppendText("Not valid router IP\n")
+            self.separator()
             return
 
         device = self.device_ctrl.GetValue()
@@ -200,6 +203,7 @@ class MainWindow(wx.Frame):
         with utils.captureStdOut(out):
             portscan.run()
         self.text_output.AppendText(out.getvalue())
+        self.separator()
 
     def settings_save_device(self, event):
         self.settings.setValue('device', self.device_ctrl.GetValue())
@@ -232,11 +236,14 @@ class MainWindow(wx.Frame):
         self.ip_ctrl.SetValue(self.settings.value('ip'))
         '''
 
+    def separator(self):
+        self.text_output.AppendText("=======================\n\n")
+
 
 class MainApp(wx.App):
     def OnInit(self):
         appname = "GetPortWX"
-        ver = "0.1"
+        ver = "1.0-rc1"
         title = '{n} (v.{v})'.format(n=appname, v=ver)
 
         # get path of program dir.
