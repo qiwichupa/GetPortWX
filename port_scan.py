@@ -220,7 +220,11 @@ def main():
                     while neighbor:
                         old_neighbor = neighbor
                         new_neighbor = followSwitch(sswitch, community)
-                        ifIndex, count1 = new_neighbor.get_mac_from_cdp_neighbor( neighbor, nmac, nip )
+                        try:
+                            ifIndex, count1 = new_neighbor.get_mac_from_cdp_neighbor(neighbor, nmac, nip)
+                        except Exception as e:
+                            if verbose: print("Stopping: {}".format(e))
+                            break
                         count += count1
                         sswitch = neighbor
                         neighbor = followSwitch(sswitch, community).get_cdp_neighbor_ip( ifIndex )
