@@ -713,7 +713,7 @@ class followSwitch(object):
                     snmperror, ifIndex = get( self.switch, comm, oTable["dot1dBasePortIfIndex"], 2, bIndex )
                     if snmperror:
                         print(snmperror)
-                        sys.exit(1)
+                        exit_error()
                     ifIndex = int(ifIndex)
                     ifSpeed = self.speedH[ifIndex]
                     try:
@@ -956,7 +956,7 @@ class followSwitch(object):
         snmperror, switchtype = get( self.cswitch, self.community, oTable["sysDescr"], 2)
         if snmperror:
             print("Wrong Community String %s for device %s" % ( self.community, self.cswitch ))
-            sys.exit(1)
+            exit_error()
         get_nmac = followSwitch( self.cswitch, self.community )
         get_nmac.set_duplex()
         get_nmac.set_speed()

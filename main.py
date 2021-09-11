@@ -44,8 +44,8 @@ class MainWindow(wx.Frame):
         c = self.settings.value('community')
         m = self.settings.value('mac')
 
-        #portscan = PortScan(device=d, community=c, mac=m)
-        portscan = PortScan(help=True)
+        portscan = PortScan(device=d, community=c, mac=m)
+        #portscan = PortScan(help=True)
         out = utils.StringIO()
         with utils.captureStdOut(out):
             portscan.run()
