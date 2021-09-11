@@ -138,8 +138,7 @@ def usage():
 
 
     """)
-    if __name__ == '__main__':
-        sys.exit(0)
+    exit()
 
 
 def main():
@@ -149,7 +148,7 @@ def main():
         switchtype = str(switchtype)
         if snmperror:
             print(snmperror, "Either Wrong Community String or Firewall or SNMP Not Running")
-            sys.exit(1)
+            exit_error()
         sbrand = None
         scanned_neighbor = False
         dswitch = device
@@ -176,14 +175,14 @@ def main():
                 nmac, valid = verify_mac( nmac )
                 if not valid:
                     print("Your mac %s is in the wrong format" % (mac))
-                    sys.exit(1)
+                    exit_error()
                 nip = switch.findIpByMac( nmac )
             if ip:
                 nip = ip
                 nmac = switch.findMacByIp( nip )
                 if nmac == None:
                     print("This IP Address, %s , is not in the ARP table" % (ip))
-                    sys.exit(1)
+                    exit_error()
 
             if ( re.search("Cisco|PROCURVE|HP|Nortel|ERS|Foundry", switchtype, re.IGNORECASE ) ):
                 mTable, ifIndex = switch.find_mac( nmac, nip )
@@ -285,7 +284,7 @@ def write_report( dev, entIpList, tcount = [] ):
     switchtype = str(switchtype)
     if snmperror:
         print(snmperror, "Either Wrong Community String or Firewall or SNMP Not Running")
-        sys.exit(1)
+        exit_error()
     switch = followSwitch( dev, community )
     switch.set_duplex()
     switch.set_speed()
@@ -462,6 +461,16 @@ def port_speed( speed ):
     speed = speed / 1000000
     speed = str(speed)+"mb"
     return speed
+
+def exit_error():
+    '''Exit if script run as standalone'''
+    if __name__ == '__main__':
+        sys.exit(1)
+
+def exit():
+    '''Exit if script run as standalone'''
+    if __name__ == '__main__':
+        sys.exit(0)
 
 class followSwitch(object):
     def __init__(self, switch, comm="public" ):
