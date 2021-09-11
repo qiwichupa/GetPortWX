@@ -237,13 +237,13 @@ class MainWindow(wx.Frame):
         '''
 
     def separator(self):
-        self.text_output.AppendText("=======================\n\n")
+        self.text_output.AppendText("\n=======================\n\n")
 
 
 class MainApp(wx.App):
     def OnInit(self):
         appname = "GetPortWX"
-        ver = "1.0-rc1"
+        ver = "1.0-rc2"
         title = '{n} (v.{v})'.format(n=appname, v=ver)
 
         # get path of program dir.
