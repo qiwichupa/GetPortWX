@@ -63,7 +63,7 @@ class MainWindow(wx.Frame):
 
 class MainApp(wx.App):
     def OnInit(self):
-        appname = "catalystmacfinder"
+        appname = "GetPortWX"
         ver = "0.1"
         title = '{n} (v.{v})'.format(n=appname, v=ver)
 
