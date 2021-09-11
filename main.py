@@ -126,9 +126,13 @@ class MainWindow(wx.Frame):
         self.community_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
         self.community_ctrl.Bind(wx.EVT_TEXT, self.settings_save_community)
 
-        self.mac_label = wx.StaticText(mainpanel,  label="MAC address:")
+        self.mac_label = wx.StaticText(mainpanel,  label="Search MAC address:")
         self.mac_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=MACValidator())
         self.mac_ctrl.Bind(wx.EVT_TEXT, self.settings_save_mac)
+
+        self.ip_label = wx.StaticText(mainpanel, label="Search IP:")
+        self.ip_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=IPValidator())
+        self.ip_ctrl.Bind(wx.EVT_TEXT, self.settings_save_ip)
 
         self.trans_button = wx.Button(mainpanel, label='Ok')
         self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
@@ -143,9 +147,11 @@ class MainWindow(wx.Frame):
         sizer.Add(self.community_ctrl, pos=(3, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.mac_label, pos=(4, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.mac_ctrl, pos=(5, 0), flag=wx.ALIGN_TOP )
-        sizer.Add(self.trans_button, pos=(6, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
+        sizer.Add(self.ip_label, pos=(6, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.ip_ctrl, pos=(7, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.trans_button, pos=(8, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
 
-        sizer.Add(self.text_output, pos=(0, 1), span=(8, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
+        sizer.Add(self.text_output, pos=(0, 1), span=(10, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
         sizer.AddGrowableCol(1)
         sizer.AddGrowableRow(0)
         mainpanel.SetSizer(sizer)
@@ -166,23 +172,30 @@ class MainWindow(wx.Frame):
 
 
     def find_port(self, event):
-        if self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
+        if len(self.mac_ctrl.GetValue().strip()) == 0 or self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
             pass
         else:
             self.text_output.AppendText("Not valid MAC\n")
             return
 
-        if self.device_ctrl.GetValidator().Validate(self.device_ctrl):
+        if len(self.ip_ctrl.GetValue().strip()) == 0 or self.ip_ctrl.GetValidator().Validate(self.ip_ctrl):
             pass
         else:
             self.text_output.AppendText("Not valid IP\n")
             return
 
-        d = self.settings.value('device')
-        c = self.settings.value('community')
-        m = self.settings.value('mac')
+        if self.device_ctrl.GetValidator().Validate(self.device_ctrl):
+            pass
+        else:
+            self.text_output.AppendText("Not valid router IP\n")
+            return
 
-        portscan = PortScan(device=d, community=c, mac=m)
+        device = self.device_ctrl.GetValue()
+        community = self.community_ctrl.GetValue()
+        mac = self.mac_ctrl.GetValue()
+        ip = self.ip_ctrl.GetValue()
+
+        portscan = PortScan(device=device, community=community, mac=mac, ip = ip)
         out = utils.StringIO()
         with utils.captureStdOut(out):
             portscan.run()
@@ -197,17 +210,27 @@ class MainWindow(wx.Frame):
     def settings_save_community(self, event):
         self.settings.setValue('community', self.community_ctrl.GetValue())
 
+    def settings_save_ip(self, event):
+        self.settings.setValue('ip', self.ip_ctrl.GetValue())
+
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)
         if not self.settings.value('device'):
             self.settings.setValue('device', '192.168.1.1')
         if not self.settings.value('community'):
             self.settings.setValue('community', 'public')
+        '''
         if not self.settings.value('mac'):
             self.settings.setValue('mac', '00 00 00 00 00 00')
+        if not self.settings.value('ip'):
+            self.settings.setValue('ip', '1.2.3.4')
+        '''
         self.device_ctrl.SetValue(self.settings.value('device'))
         self.community_ctrl.SetValue(self.settings.value('community'))
+        '''
         self.mac_ctrl.SetValue(self.settings.value('mac'))
+        self.ip_ctrl.SetValue(self.settings.value('ip'))
+        '''
 
 
 class MainApp(wx.App):
