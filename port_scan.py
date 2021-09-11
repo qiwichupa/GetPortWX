@@ -1025,7 +1025,12 @@ ostatus = {
            7 : "lowerLayerDown"
           }
 
-
+class PortScan():
+    def __init__(self,
+                 community=None, device=None, mac=None,
+                 ip=None, pname=None, report=None,
+                 verbose=None, follow=None, help=None):
+        main()
 
 if __name__ == '__main__':
     try:
