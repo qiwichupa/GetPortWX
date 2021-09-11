@@ -19,21 +19,43 @@ class MainWindow(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
         mainpanel = wx.Panel(self)
 
+        self.spacer = wx.StaticText(mainpanel, label="")
+
+        self.device_label = wx.StaticText(mainpanel, label="Router:")
+        self.device_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
+
+        self.community_label = wx.StaticText(mainpanel, label="SNMP community:")
+        self.community_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
+
+        self.mac_label = wx.StaticText(mainpanel,  label="MAC address:")
+        self.mac_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
+
         self.trans_button = wx.Button(mainpanel, label='Ok')
         self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
 
         self.text_output = wx.TextCtrl(mainpanel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
 
         sizer = wx.GridBagSizer()
-        sizer.Add(self.trans_button, pos=(0, 0), flag=wx.LEFT|wx.EXPAND)
-        sizer.Add(self.text_output, pos=(0, 1), flag=wx.RIGHT|wx.EXPAND)
+
+        sizer.Add(self.device_label,  pos=(0, 0), flag=wx.ALIGN_BOTTOM)
+        sizer.Add(self.device_ctrl, pos=(1, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.community_label, pos=(2, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.community_ctrl, pos=(3, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.mac_label, pos=(4, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.mac_ctrl, pos=(5, 0), flag=wx.ALIGN_TOP )
+        sizer.Add(self.trans_button, pos=(6, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
+
+        sizer.Add(self.text_output, pos=(0, 1), span=(8, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
         sizer.AddGrowableCol(1)
         sizer.AddGrowableRow(0)
         mainpanel.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
-        self.SetMinSize((200, 200))
-        self.SetSize((200, 200))
+        x, y = sizer.GetSize()
+        x+=300
+        y+=150
+        self.SetMinSize((x, y))
+        self.SetSize((x, y))
         self.Show(True)
 
     def close(self, event):
