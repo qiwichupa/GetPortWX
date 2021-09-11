@@ -44,10 +44,11 @@ class MainWindow(wx.Frame):
         c = self.settings.value('community')
         m = self.settings.value('mac')
 
-        portscan = PortScan(d, c, m)
+        #portscan = PortScan(device=d, community=c, mac=m)
+        portscan = PortScan(help=True)
         out = utils.StringIO()
         with utils.captureStdOut(out):
-            portscan.main()
+            portscan.run()
         self.text_output.AppendText(out.getvalue())
 
     def init_settings(self):

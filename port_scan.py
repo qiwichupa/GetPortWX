@@ -138,7 +138,8 @@ def usage():
 
 
     """)
-    sys.exit(0)
+    if __name__ == '__main__':
+        sys.exit(0)
 
 
 def main():
@@ -1030,7 +1031,48 @@ class PortScan():
                  community=None, device=None, mac=None,
                  ip=None, pname=None, report=None,
                  verbose=None, follow=None, help=None):
+        self.community = community
+        self.device = device
+        self.mac = mac
+        self.ip = ip
+        self.pname = pname
+        self.report = report
+        self.verbose = verbose
+        self.follow = follow
+        self.help = help
+
+    def run(self):
+        global community
+        global device
+        global mac
+        global ip
+        global pname
+        global report
+        global verbose
+        global follow
+        global help
+
+        community = self.community
+        device = self.device
+        mac = self.mac
+        ip = self.ip
+        pname = self.pname
+        report = self.report
+        verbose = self.verbose
+        follow = self.follow
+        help = self.help
+
+        if help is not None:
+            usage()
+        if report is not None:
+            report = True
+        if follow is not None:
+            follow = True
+        if verbose is not None:
+            verbose = True
         main()
+
+help = community = device = mac = ip = pname = verbose = report = follow = None
 
 if __name__ == '__main__':
     try:
@@ -1040,7 +1082,7 @@ if __name__ == '__main__':
     except getopt.error:
         usage()
 
-    help = community = device = mac = ip = pname = verbose = report = follow = None
+
 
     for opt, val in opts:
         if opt in ('-c', '--community'):
