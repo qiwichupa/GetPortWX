@@ -1025,37 +1025,37 @@ ostatus = {
            7 : "lowerLayerDown"
           }
 
-try:
-     opts, args = getopt.getopt(sys.argv[1:], "c:d:i:m:n:h:rfv",
-     [ 'community=', 'device=', "mac=", 'ip=', 'pname=', 'report', 'verbose', 'follow', 'help' ]
-     )
-except getopt.error:
-     usage()
-
-help = community = device = mac = ip = pname = verbose = report = follow = None
-
-for opt, val in opts:
-    if opt in ('-c', '--community'):
-        community = val
-    if opt in ('-d', '--device'):
-        device = val
-    if opt in ('-m', '--mac'):
-        mac = val
-    if opt in ('-i', '--ip'):
-        ip = val
-    if opt in ('-n', '--pname'):
-        pname = val
-    if opt in ('-h', '--help'):
-        help = usage()
-    if opt in ('-r', '--report'):
-        report = True
-    if opt in ('-f', '--follow'):
-        follow = True
-    if opt in ('-v', '--verbose'):
-        verbose = True
-
 
 
 if __name__ == '__main__':
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "c:d:i:m:n:h:rfv",
+                                   ['community=', 'device=', "mac=", 'ip=', 'pname=', 'report', 'verbose', 'follow', 'help']
+                                   )
+    except getopt.error:
+        usage()
+
+    help = community = device = mac = ip = pname = verbose = report = follow = None
+
+    for opt, val in opts:
+        if opt in ('-c', '--community'):
+            community = val
+        if opt in ('-d', '--device'):
+            device = val
+        if opt in ('-m', '--mac'):
+            mac = val
+        if opt in ('-i', '--ip'):
+            ip = val
+        if opt in ('-n', '--pname'):
+            pname = val
+        if opt in ('-h', '--help'):
+            help = usage()
+        if opt in ('-r', '--report'):
+            report = True
+        if opt in ('-f', '--follow'):
+            follow = True
+        if opt in ('-v', '--verbose'):
+            verbose = True
+
     main()
 
