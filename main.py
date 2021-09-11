@@ -112,7 +112,6 @@ class MainWindow(wx.Frame):
     def __init__(self, parent, title, configfile, appPath):
         self.configfile = configfile
         self.appPath = appPath
-        self.init_settings()
 
         wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
         mainpanel = wx.Panel(self)
@@ -121,12 +120,15 @@ class MainWindow(wx.Frame):
 
         self.device_label = wx.StaticText(mainpanel, label="Router:")
         self.device_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=IPValidator())
+        self.device_ctrl.Bind(wx.EVT_TEXT, self.settings_save_device)
 
         self.community_label = wx.StaticText(mainpanel, label="SNMP community:")
         self.community_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
+        self.community_ctrl.Bind(wx.EVT_TEXT, self.settings_save_community)
 
         self.mac_label = wx.StaticText(mainpanel,  label="MAC address:")
         self.mac_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=MACValidator())
+        self.mac_ctrl.Bind(wx.EVT_TEXT, self.settings_save_mac)
 
         self.trans_button = wx.Button(mainpanel, label='Ok')
         self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
@@ -154,6 +156,9 @@ class MainWindow(wx.Frame):
         y+=150
         self.SetMinSize((x, y))
         self.SetSize((x, y))
+
+        self.init_settings()
+
         self.Show(True)
 
     def close(self, event):
@@ -164,7 +169,7 @@ class MainWindow(wx.Frame):
         if self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
             pass
         else:
-            self.text_output.AppendText("Not valid IP\n")
+            self.text_output.AppendText("Not valid MAC\n")
             return
 
         if self.device_ctrl.GetValidator().Validate(self.device_ctrl):
@@ -173,7 +178,7 @@ class MainWindow(wx.Frame):
             self.text_output.AppendText("Not valid IP\n")
             return
 
-        d = self.settings.value('gw')
+        d = self.settings.value('device')
         c = self.settings.value('community')
         m = self.settings.value('mac')
 
@@ -183,14 +188,26 @@ class MainWindow(wx.Frame):
             portscan.run()
         self.text_output.AppendText(out.getvalue())
 
+    def settings_save_device(self, event):
+        self.settings.setValue('device', self.device_ctrl.GetValue())
+
+    def settings_save_mac(self, event):
+        self.settings.setValue('mac', self.mac_ctrl.GetValue())
+
+    def settings_save_community(self, event):
+        self.settings.setValue('community', self.community_ctrl.GetValue())
+
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)
-        if not self.settings.value('gw'):
-            self.settings.setValue('gw', '192.168.1.1')
+        if not self.settings.value('device'):
+            self.settings.setValue('device', '192.168.1.1')
         if not self.settings.value('community'):
             self.settings.setValue('community', 'public')
         if not self.settings.value('mac'):
             self.settings.setValue('mac', '00 00 00 00 00 00')
+        self.device_ctrl.SetValue(self.settings.value('device'))
+        self.community_ctrl.SetValue(self.settings.value('community'))
+        self.mac_ctrl.SetValue(self.settings.value('mac'))
 
 
 class MainApp(wx.App):
