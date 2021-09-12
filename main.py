@@ -278,7 +278,7 @@ class MainWindow(wx.Frame):
 class MainApp(wx.App):
     def OnInit(self):
         appname = "GetPortWX"
-        ver = "1.0-rc2"
+        ver = "1.0-rc3"
         title = '{n} (v.{v})'.format(n=appname, v=ver)
 
         # get path of program dir.
