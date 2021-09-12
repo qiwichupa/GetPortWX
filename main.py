@@ -10,6 +10,36 @@ from port_scan import *
 
 import utils
 
+from threading import Thread
+from pubsub import pub as Publisher
+
+
+########################################################################
+class GetPortThread(Thread):
+    """Test Worker Thread Class."""
+
+    # ----------------------------------------------------------------------
+    def __init__(self, device, community, mac, ip):
+        """Init Worker Thread Class."""
+        Thread.__init__(self)
+        self.device = device
+        self.community = community
+        self.mac = mac
+        self.ip = ip
+
+        self.start()  # start the thread
+
+    # ----------------------------------------------------------------------
+    def run(self):
+        """Run Worker Thread."""
+        # This is the code executing in the new thread.
+        portscan = PortScan(device=self.device, community=self.community,
+                            mac=self.mac, ip=self.ip)
+        out = utils.StringIO()
+        with utils.captureStdOut(out):
+            portscan.run()
+        msg = out.getvalue()
+        wx.CallAfter(Publisher.sendMessage, "update", msg=msg)
 
 class IPValidator(wx.Validator):
     """ This validator is used to ensure that the user has entered a float
@@ -165,11 +195,17 @@ class MainWindow(wx.Frame):
 
         self.init_settings()
 
+        # create a pubsub receiver
+        Publisher.subscribe(self.updateLog, "update")
+
         self.Show(True)
 
     def close(self, event):
         pass
 
+    def updateLog(self, msg):
+        self.text_output.AppendText(msg)
+        self.separator()
 
     def find_port(self, event):
         if len(self.mac_ctrl.GetValue().strip()) == 0 or self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
@@ -198,12 +234,7 @@ class MainWindow(wx.Frame):
         mac = self.mac_ctrl.GetValue()
         ip = self.ip_ctrl.GetValue()
 
-        portscan = PortScan(device=device, community=community, mac=mac, ip = ip)
-        out = utils.StringIO()
-        with utils.captureStdOut(out):
-            portscan.run()
-        self.text_output.AppendText(out.getvalue())
-        self.separator()
+        GetPortThread(device=device, community=community, mac=mac, ip = ip)
 
     def settings_save_device(self, event):
         self.settings.setValue('device', self.device_ctrl.GetValue())
