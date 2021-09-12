@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import re
+import time
 import os
 import wx
 from yaml_config import YamlConfig
@@ -10,11 +10,31 @@ from port_scan import *
 
 import utils
 
-from threading import Thread
+from threading import Thread, Event
 from pubsub import pub as Publisher
 
 
-########################################################################
+class SearchAnimation(Thread):
+    """Test Worker Thread Class."""
+    def __init__(self):
+        """Init Worker Thread Class."""
+        Thread.__init__(self)
+        self.kill = Event()
+        self.start()  # start the thread
+
+    # ----------------------------------------------------------------------
+    def run(self):
+        """Run Worker Thread."""
+        # This is the code executing in the new thread.
+        label = "Searching"
+        while not self.kill.is_set():
+            if label == "Searching": label = "Searching."
+            elif label == "Searching.": label = "Searching.."
+            elif label == "Searching..": label = "Searching..."
+            elif label == "Searching...": label = "Searching"
+            wx.CallAfter(Publisher.sendMessage, "animate", msg=label)
+            time.sleep(1)
+
 class GetPortThread(Thread):
     """Test Worker Thread Class."""
 
@@ -196,14 +216,19 @@ class MainWindow(wx.Frame):
         self.init_settings()
 
         # create a pubsub receiver
-        Publisher.subscribe(self.updateLog, "update")
+        Publisher.subscribe(self.update_log, "update")
+        Publisher.subscribe(self.animate_search_button, "animate")
 
         self.Show(True)
 
     def close(self, event):
         pass
 
-    def updateLog(self, msg):
+    def animate_search_button(self, msg):
+        self.search_button.SetLabel(msg)
+
+    def update_log(self, msg):
+        self.searchbuttonanimationthread.kill.set()
         self.text_output.AppendText(msg)
         self.separator()
         self.search_button.SetLabel("Search")
@@ -239,6 +264,7 @@ class MainWindow(wx.Frame):
         GetPortThread(device=device, community=community, mac=mac, ip = ip)
         self.search_button.Disable()
         self.search_button.SetLabel("Searching")
+        self.searchbuttonanimationthread = SearchAnimation()
 
     def settings_save_device(self, event):
         self.settings.setValue('device', self.device_ctrl.GetValue())
