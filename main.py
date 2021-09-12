@@ -164,8 +164,8 @@ class MainWindow(wx.Frame):
         self.ip_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=IPValidator())
         self.ip_ctrl.Bind(wx.EVT_TEXT, self.settings_save_ip)
 
-        self.trans_button = wx.Button(mainpanel, label='Ok')
-        self.trans_button.Bind(wx.EVT_BUTTON, self.find_port)
+        self.search_button = wx.Button(mainpanel, label='Search')
+        self.search_button.Bind(wx.EVT_BUTTON, self.find_port)
 
         self.text_output = wx.TextCtrl(mainpanel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
 
@@ -179,7 +179,7 @@ class MainWindow(wx.Frame):
         sizer.Add(self.mac_ctrl, pos=(5, 0), flag=wx.ALIGN_TOP )
         sizer.Add(self.ip_label, pos=(6, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.ip_ctrl, pos=(7, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.trans_button, pos=(8, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
+        sizer.Add(self.search_button, pos=(8, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
 
         sizer.Add(self.text_output, pos=(0, 1), span=(10, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
         sizer.AddGrowableCol(1)
@@ -206,6 +206,8 @@ class MainWindow(wx.Frame):
     def updateLog(self, msg):
         self.text_output.AppendText(msg)
         self.separator()
+        self.search_button.SetLabel("Search")
+        self.search_button.Enable()
 
     def find_port(self, event):
         if len(self.mac_ctrl.GetValue().strip()) == 0 or self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
@@ -235,6 +237,8 @@ class MainWindow(wx.Frame):
         ip = self.ip_ctrl.GetValue()
 
         GetPortThread(device=device, community=community, mac=mac, ip = ip)
+        self.search_button.Disable()
+        self.search_button.SetLabel("Searching")
 
     def settings_save_device(self, event):
         self.settings.setValue('device', self.device_ctrl.GetValue())
