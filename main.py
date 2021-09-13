@@ -3,6 +3,7 @@
 import time
 import os
 import wx
+import wx.lib.agw.hyperlink as hl
 from yaml_config import YamlConfig
 import appdirs
 import regex
@@ -166,7 +167,8 @@ class MainWindow(wx.Frame):
         wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
         mainpanel = wx.Panel(self)
 
-        self.spacer = wx.StaticText(mainpanel, label="")
+        self.info = hl.HyperLinkCtrl(mainpanel, -1, label="Project on Github",
+                               URL="https://github.com/qiwichupa/GetPortWX")
 
         self.device_label = wx.StaticText(mainpanel, label="Router:")
         self.device_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=IPValidator())
@@ -190,25 +192,25 @@ class MainWindow(wx.Frame):
         self.text_output = wx.TextCtrl(mainpanel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
 
         sizer = wx.GridBagSizer()
+        sizer.Add(self.info, pos=(0, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.device_label,  pos=(1, 0), flag=wx.ALIGN_BOTTOM)
+        sizer.Add(self.device_ctrl, pos=(2, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.community_label, pos=(3, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.community_ctrl, pos=(4, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.mac_label, pos=(5, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.mac_ctrl, pos=(6, 0), flag=wx.ALIGN_TOP )
+        sizer.Add(self.ip_label, pos=(7, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.ip_ctrl, pos=(8, 0), flag=wx.ALIGN_TOP)
+        sizer.Add(self.search_button, pos=(9, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
 
-        sizer.Add(self.device_label,  pos=(0, 0), flag=wx.ALIGN_BOTTOM)
-        sizer.Add(self.device_ctrl, pos=(1, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.community_label, pos=(2, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.community_ctrl, pos=(3, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.mac_label, pos=(4, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.mac_ctrl, pos=(5, 0), flag=wx.ALIGN_TOP )
-        sizer.Add(self.ip_label, pos=(6, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.ip_ctrl, pos=(7, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.search_button, pos=(8, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
-
-        sizer.Add(self.text_output, pos=(0, 1), span=(10, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
+        sizer.Add(self.text_output, pos=(0, 1), span=(11, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
         sizer.AddGrowableCol(1)
         sizer.AddGrowableRow(0)
         mainpanel.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
         x, y = sizer.GetSize()
-        x+=300
+        x+=500
         y+=150
         self.SetMinSize((x, y))
         self.SetSize((x, y))
