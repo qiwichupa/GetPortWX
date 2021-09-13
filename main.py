@@ -26,13 +26,14 @@ class SearchAnimation(Thread):
     # ----------------------------------------------------------------------
     def run(self):
         label = "Searching"
+        seconds=0
+        interval=1
         while not self.kill.is_set():
-            if label == "Searching": label = "Searching."
-            elif label == "Searching.": label = "Searching.."
-            elif label == "Searching..": label = "Searching..."
-            elif label == "Searching...": label = "Searching"
+            timer = time.strftime('%M:%S', time.gmtime(seconds))
+            label = "({t}) Searching...".format(t=timer)
             wx.CallAfter(Publisher.sendMessage, "animate", msg=label)
-            time.sleep(1)
+            time.sleep(interval)
+            seconds = seconds + interval
 
 class GetPortThread(Thread):
     """Main Thread: runs original python script with parameters"""
