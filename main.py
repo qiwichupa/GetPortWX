@@ -21,7 +21,6 @@ class SearchAnimation(Thread):
         """Init Worker Thread Class."""
         Thread.__init__(self)
         self.kill = Event()
-        self.start()  # start the thread
 
     # ----------------------------------------------------------------------
     def run(self):
@@ -46,8 +45,6 @@ class GetPortThread(Thread):
         self.community = community
         self.mac = mac
         self.ip = ip
-
-        self.start()  # start the thread
 
     # ----------------------------------------------------------------------
     def run(self):
@@ -262,10 +259,14 @@ class MainWindow(wx.Frame):
         mac = self.mac_ctrl.GetValue()
         ip = self.ip_ctrl.GetValue()
 
-        GetPortThread(device=device, community=community, mac=mac, ip = ip)
+        self.getportthread = GetPortThread(device=device, community=community, mac=mac, ip=ip)
+        self.getportthread.daemon = True
+        self.getportthread.start()
         self.search_button.Disable()
         self.search_button.SetLabel("Searching")
         self.searchbuttonanimationthread = SearchAnimation()
+        self.searchbuttonanimationthread.daemon = True
+        self.searchbuttonanimationthread.start()
 
     # ----------------------------------------------------------------------
     def settings_save_device(self, event):
