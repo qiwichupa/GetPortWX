@@ -230,6 +230,11 @@ class MainWindow(wx.Frame):
 
     # ----------------------------------------------------------------------
     def find_port(self, event):
+        if len(self.mac_ctrl.GetValue().strip()) == 0 and len(self.ip_ctrl.GetValue().strip()) == 0:
+            self.text_output.AppendText("Please enter MAC or IP\n")
+            self.separator()
+            return
+
         if len(self.mac_ctrl.GetValue().strip()) == 0 or self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
             pass
         else:
