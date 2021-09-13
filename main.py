@@ -314,7 +314,7 @@ class MainApp(wx.App):
     # ----------------------------------------------------------------------
     def OnInit(self):
         appname = "GetPortWX"
-        ver = "1.0-rc5"
+        ver = "1.0-rc6"
         title = '{n} (v.{v})'.format(n=appname, v=ver)
 
         # get path of program dir.
