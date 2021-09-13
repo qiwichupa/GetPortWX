@@ -16,7 +16,7 @@ from pubsub import pub as Publisher
 
 
 class SearchAnimation(Thread):
-    """Test Worker Thread Class."""
+    """Search Button 'Searching..' Animation Thread."""
     def __init__(self):
         """Init Worker Thread Class."""
         Thread.__init__(self)
@@ -25,8 +25,6 @@ class SearchAnimation(Thread):
 
     # ----------------------------------------------------------------------
     def run(self):
-        """Run Worker Thread."""
-        # This is the code executing in the new thread.
         label = "Searching"
         while not self.kill.is_set():
             if label == "Searching": label = "Searching."
@@ -37,7 +35,7 @@ class SearchAnimation(Thread):
             time.sleep(1)
 
 class GetPortThread(Thread):
-    """Test Worker Thread Class."""
+    """Main Thread: runs original python script with parameters"""
 
     # ----------------------------------------------------------------------
     def __init__(self, device, community, mac, ip):
@@ -52,8 +50,6 @@ class GetPortThread(Thread):
 
     # ----------------------------------------------------------------------
     def run(self):
-        """Run Worker Thread."""
-        # This is the code executing in the new thread.
         portscan = PortScan(device=self.device, community=self.community,
                             mac=self.mac, ip=self.ip)
         out = utils.StringIO()
@@ -63,22 +59,17 @@ class GetPortThread(Thread):
         wx.CallAfter(Publisher.sendMessage, "update", msg=msg)
 
 class IPValidator(wx.Validator):
-    """ This validator is used to ensure that the user has entered a float
-        into the text control of MyFrame.
-    """
+    """ WX validator for IP-inputs """
 
+    # ----------------------------------------------------------------------
     def __init__(self):
-        """ Standard constructor.
-        """
         wx.Validator.__init__(self)
 
+    # ----------------------------------------------------------------------
     def Clone(self):
-        """ Standard cloner.
-
-            Note that every validator must implement the Clone() method.
-        """
         return IPValidator()
 
+    # ----------------------------------------------------------------------
     def Validate(self, win):
         textCtrl = self.GetWindow()
         string = textCtrl.GetValue().strip()
@@ -89,6 +80,7 @@ class IPValidator(wx.Validator):
         else:
             return False
 
+    # ----------------------------------------------------------------------
     def TransferToWindow(self):
         """ Transfer data from validator to window.
 
@@ -97,6 +89,7 @@ class IPValidator(wx.Validator):
         """
         return True  # Prevent wxDialog from complaining.
 
+    # ----------------------------------------------------------------------
     def TransferFromWindow(self):
         """ Transfer data from window to validator.
 
@@ -106,22 +99,20 @@ class IPValidator(wx.Validator):
         return True  # Prevent wxDialog from complaining.
 
 class MACValidator(wx.Validator):
-    """ This validator is used to ensure that the user has entered a float
-        into the text control of MyFrame.
+    """ WX validator for MAC-address input.
+        Also converts a correct MAC to canonical form and return it
     """
 
+    # ----------------------------------------------------------------------
     def __init__(self):
-        """ Standard constructor.
-        """
+
         wx.Validator.__init__(self)
 
+    # ----------------------------------------------------------------------
     def Clone(self):
-        """ Standard cloner.
-
-            Note that every validator must implement the Clone() method.
-        """
         return MACValidator()
 
+    # ----------------------------------------------------------------------
     def Validate(self, win):
         textCtrl = self.GetWindow()
         try:
@@ -132,6 +123,7 @@ class MACValidator(wx.Validator):
             textCtrl.SetValue(string)
             return True
 
+    # ----------------------------------------------------------------------
     def format_mac(self, mac: str) -> str:
         mac = re.sub('[.:-]', '', mac).lower()  # remove delimiters and convert to lower case
         mac = ''.join(mac.split())  # remove whitespaces
@@ -141,7 +133,7 @@ class MACValidator(wx.Validator):
         mac = ":".join(["%s" % (mac[i:i + 2]) for i in range(0, 12, 2)])
         return mac
 
-
+    # ----------------------------------------------------------------------
     def TransferToWindow(self):
         """ Transfer data from validator to window.
 
@@ -150,6 +142,7 @@ class MACValidator(wx.Validator):
         """
         return True  # Prevent wxDialog from complaining.
 
+    # ----------------------------------------------------------------------
     def TransferFromWindow(self):
         """ Transfer data from window to validator.
 
@@ -159,7 +152,7 @@ class MACValidator(wx.Validator):
         return True  # Prevent wxDialog from complaining.
 
 class MainWindow(wx.Frame):
-
+    # ----------------------------------------------------------------------
     def __init__(self, parent, title, configfile, appPath):
         self.configfile = configfile
         self.appPath = appPath
@@ -223,12 +216,11 @@ class MainWindow(wx.Frame):
 
         self.Show(True)
 
-    def close(self, event):
-        pass
-
+    # ----------------------------------------------------------------------
     def animate_search_button(self, msg):
         self.search_button.SetLabel(msg)
 
+    # ----------------------------------------------------------------------
     def update_log(self, msg):
         self.searchbuttonanimationthread.kill.set()
         self.text_output.AppendText(msg)
@@ -236,6 +228,7 @@ class MainWindow(wx.Frame):
         self.search_button.SetLabel("Search")
         self.search_button.Enable()
 
+    # ----------------------------------------------------------------------
     def find_port(self, event):
         if len(self.mac_ctrl.GetValue().strip()) == 0 or self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
             pass
@@ -268,25 +261,30 @@ class MainWindow(wx.Frame):
         self.search_button.SetLabel("Searching")
         self.searchbuttonanimationthread = SearchAnimation()
 
+    # ----------------------------------------------------------------------
     def settings_save_device(self, event):
         self.settings.setValue('device', self.device_ctrl.GetValue())
 
+    # ----------------------------------------------------------------------
     def settings_save_mac(self, event):
         self.settings.setValue('mac', self.mac_ctrl.GetValue())
 
+    # ----------------------------------------------------------------------
     def settings_save_community(self, event):
         self.settings.setValue('community', self.community_ctrl.GetValue())
 
+    # ----------------------------------------------------------------------
     def settings_save_ip(self, event):
         self.settings.setValue('ip', self.ip_ctrl.GetValue())
 
+    # ----------------------------------------------------------------------
     def init_settings(self):
         self.settings = YamlConfig(self.configfile)
         if not self.settings.value('device'):
             self.settings.setValue('device', '192.168.1.1')
         if not self.settings.value('community'):
             self.settings.setValue('community', 'public')
-        '''
+        ''' It's about default MAC and IP, but it's not necessary
         if not self.settings.value('mac'):
             self.settings.setValue('mac', '00 00 00 00 00 00')
         if not self.settings.value('ip'):
@@ -294,16 +292,19 @@ class MainWindow(wx.Frame):
         '''
         self.device_ctrl.SetValue(self.settings.value('device'))
         self.community_ctrl.SetValue(self.settings.value('community'))
-        '''
+        ''' Loading MAC and IP from settings, check the lines above - it's not necessary too
         self.mac_ctrl.SetValue(self.settings.value('mac'))
         self.ip_ctrl.SetValue(self.settings.value('ip'))
         '''
 
+    # ----------------------------------------------------------------------
     def separator(self):
         self.text_output.AppendText("\n=======================\n\n")
 
 
 class MainApp(wx.App):
+
+    # ----------------------------------------------------------------------
     def OnInit(self):
         appname = "GetPortWX"
         ver = "1.0-rc5"
