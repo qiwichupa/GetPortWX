@@ -24,7 +24,6 @@ class SearchAnimation(Thread):
 
     # ----------------------------------------------------------------------
     def run(self):
-        label = "Searching"
         seconds=0
         interval=1
         while not self.kill.is_set():
@@ -263,7 +262,6 @@ class MainWindow(wx.Frame):
         self.getportthread.daemon = True
         self.getportthread.start()
         self.search_button.Disable()
-        self.search_button.SetLabel("Searching")
         self.searchbuttonanimationthread = SearchAnimation()
         self.searchbuttonanimationthread.daemon = True
         self.searchbuttonanimationthread.start()
