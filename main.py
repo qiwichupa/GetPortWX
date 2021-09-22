@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
 import time
-import os
 import wx
 import wx.lib.agw.hyperlink as hl
+
 from yaml_config import YamlConfig
-import appdirs
-import regex
+from app_dirs import AppDirs
+import utils
 from port_scan import *
 
-import utils
-
+import regex
 from threading import Thread, Event
 from pubsub import pub as Publisher
 
@@ -150,9 +149,8 @@ class MACValidator(wx.Validator):
 
 class MainWindow(wx.Frame):
     # ----------------------------------------------------------------------
-    def __init__(self, parent, title, configfile, appPath):
+    def __init__(self, parent, title, configfile):
         self.configfile = configfile
-        self.appPath = appPath
 
         wx.Frame.__init__(self, parent, title=title, style=wx.DEFAULT_FRAME_STYLE | wx.RESIZE_BORDER)
         mainpanel = wx.Panel(self)
@@ -314,19 +312,9 @@ class MainApp(wx.App):
         appname = "GetPortWX"
         ver = "1.0"
         title = '{n} (v.{v})'.format(n=appname, v=ver)
-
-        # get path of program dir.
-        # sys._MEIPASS - variable of pyinstaller (one-dir package) with path to executable
-        try:
-            sys._MEIPASS
-            appPath = sys._MEIPASS
-        except:
-            appPath = os.path.dirname(os.path.abspath(__file__))
-        # set "data" in program dir as working directory
-        appDataPath = appdirs.user_config_dir(appname, False)
-        configfile =  os.path.join(appDataPath, 'settings.yaml')
-
-        self.frame = MainWindow(None, title, configfile, appPath)
+        appdatadir = AppDirs(appname)
+        configfile = appdatadir.get_file('settings.yaml')
+        self.frame = MainWindow(None, title, configfile)
         return(True)
 
 if __name__ == "__main__":
