@@ -16,6 +16,7 @@ from pubsub import pub as Publisher
 
 class SearchAnimation(Thread):
     """Search Button 'Searching..' Animation Thread."""
+
     def __init__(self):
         """Init Worker Thread Class."""
         Thread.__init__(self)
@@ -23,14 +24,15 @@ class SearchAnimation(Thread):
 
     # ----------------------------------------------------------------------
     def run(self):
-        seconds=0
-        interval=1
+        seconds = 0
+        interval = 1
         while not self.kill.is_set():
             timer = time.strftime('%M:%S', time.gmtime(seconds))
             label = "({t}) Searching...".format(t=timer)
             wx.CallAfter(Publisher.sendMessage, "animate", msg=label)
             time.sleep(interval)
             seconds = seconds + interval
+
 
 class GetPortThread(Thread):
     """Main Thread: runs original python script with parameters"""
@@ -53,6 +55,7 @@ class GetPortThread(Thread):
             portscan.run()
         msg = out.getvalue()
         wx.CallAfter(Publisher.sendMessage, "update", msg=msg)
+
 
 class IPValidator(wx.Validator):
     """ WX validator for IP-inputs """
@@ -94,6 +97,7 @@ class IPValidator(wx.Validator):
         """
         return True  # Prevent wxDialog from complaining.
 
+
 class MACValidator(wx.Validator):
     """ WX validator for MAC-address input.
         Also converts a correct MAC to canonical form and return it
@@ -111,9 +115,10 @@ class MACValidator(wx.Validator):
     # ----------------------------------------------------------------------
     def Validate(self, win):
         textCtrl = self.GetWindow()
+        # noinspection PyBroadException
         try:
             string = self.format_mac(textCtrl.GetValue())
-        except:
+        except Exception:
             return False
         else:
             textCtrl.SetValue(string)
@@ -147,6 +152,7 @@ class MACValidator(wx.Validator):
         """
         return True  # Prevent wxDialog from complaining.
 
+
 class MainWindow(wx.Frame):
     # ----------------------------------------------------------------------
     def __init__(self, parent, title, configfile):
@@ -156,7 +162,7 @@ class MainWindow(wx.Frame):
         mainpanel = wx.Panel(self)
 
         self.info = hl.HyperLinkCtrl(mainpanel, -1, label="Project on Github",
-                               URL="https://github.com/qiwichupa/GetPortWX")
+                                     URL="https://github.com/qiwichupa/GetPortWX")
 
         self.device_label = wx.StaticText(mainpanel, label="Router:")
         self.device_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=IPValidator())
@@ -166,7 +172,7 @@ class MainWindow(wx.Frame):
         self.community_ctrl = wx.TextCtrl(mainpanel, size=(150, -1))
         self.community_ctrl.Bind(wx.EVT_TEXT, self.settings_save_community)
 
-        self.mac_label = wx.StaticText(mainpanel,  label="Search MAC address:")
+        self.mac_label = wx.StaticText(mainpanel, label="Search MAC address:")
         self.mac_ctrl = wx.TextCtrl(mainpanel, size=(150, -1), validator=MACValidator())
         self.mac_ctrl.Bind(wx.EVT_TEXT, self.settings_save_mac)
 
@@ -181,25 +187,25 @@ class MainWindow(wx.Frame):
 
         sizer = wx.GridBagSizer()
         sizer.Add(self.info, pos=(0, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.device_label,  pos=(1, 0), flag=wx.ALIGN_BOTTOM)
+        sizer.Add(self.device_label, pos=(1, 0), flag=wx.ALIGN_BOTTOM)
         sizer.Add(self.device_ctrl, pos=(2, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.community_label, pos=(3, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.community_ctrl, pos=(4, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.mac_label, pos=(5, 0), flag=wx.ALIGN_TOP)
-        sizer.Add(self.mac_ctrl, pos=(6, 0), flag=wx.ALIGN_TOP )
+        sizer.Add(self.mac_ctrl, pos=(6, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.ip_label, pos=(7, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.ip_ctrl, pos=(8, 0), flag=wx.ALIGN_TOP)
         sizer.Add(self.search_button, pos=(9, 0), flag=wx.ALIGN_TOP | wx.EXPAND)
 
-        sizer.Add(self.text_output, pos=(0, 1), span=(11, 1), flag= wx.ALIGN_TOP | wx.EXPAND)
+        sizer.Add(self.text_output, pos=(0, 1), span=(11, 1), flag=wx.ALIGN_TOP | wx.EXPAND)
         sizer.AddGrowableCol(1)
         sizer.AddGrowableRow(0)
         mainpanel.SetSizer(sizer)
         sizer.Fit(self)
         self.Layout()
         x, y = sizer.GetSize()
-        x+=500
-        y+=150
+        x += 500
+        y += 150
         self.SetMinSize((x, y))
         self.SetSize((x, y))
 
@@ -315,7 +321,8 @@ class MainApp(wx.App):
         appdatadir = AppDirs(appname)
         configfile = appdatadir.get_file('settings.yaml')
         self.frame = MainWindow(None, title, configfile)
-        return(True)
+        return True
+
 
 if __name__ == "__main__":
     app = MainApp(0)
