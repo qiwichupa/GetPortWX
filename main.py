@@ -15,7 +15,7 @@ from pubsub import pub as Publisher
 
 
 class SearchAnimation(Thread):
-    """Search Button 'Searching..' Animation Thread."""
+    """Search Button '[timer] Searching' Animation Thread."""
 
     def __init__(self):
         """Init Worker Thread Class."""
@@ -24,6 +24,7 @@ class SearchAnimation(Thread):
 
     # ----------------------------------------------------------------------
     def run(self):
+        """Shows timer while 'kill' event isn't set"""
         seconds = 0
         interval = 1
         while not self.kill.is_set():
@@ -48,6 +49,7 @@ class GetPortThread(Thread):
 
     # ----------------------------------------------------------------------
     def run(self):
+        """Runs main code from port_scan.py, captures the output and sends it to outside"""
         portscan = PortScan(device=self.device, community=self.community,
                             mac=self.mac, ip=self.ip)
         out = utils.StringIO()
@@ -219,10 +221,13 @@ class MainWindow(wx.Frame):
 
     # ----------------------------------------------------------------------
     def animate_search_button(self, msg):
+        """Updates label of Search button while searching"""
         self.search_button.SetLabel(msg)
 
     # ----------------------------------------------------------------------
     def update_log(self, msg):
+        """Stops the SearchAnimation thread, catch text from GetPortThread
+        to log panel and enables Search button"""
         self.searchbuttonanimationthread.kill.set()
         self.text_output.AppendText(msg)
         self.separator()
@@ -231,25 +236,28 @@ class MainWindow(wx.Frame):
 
     # ----------------------------------------------------------------------
     def find_port(self, event):
+        """Checks inputs and starts GetPortThread and SearchAnimation (timer on button) threads"""
+
+        # mac AND ip are empty  - error
         if len(self.mac_ctrl.GetValue().strip()) == 0 and len(self.ip_ctrl.GetValue().strip()) == 0:
             self.text_output.AppendText("Please enter MAC or IP\n")
             self.separator()
             return
-
+        # mac is empty or valid - ok
         if len(self.mac_ctrl.GetValue().strip()) == 0 or self.mac_ctrl.GetValidator().Validate(self.mac_ctrl):
             pass
         else:
             self.text_output.AppendText("Not valid MAC\n")
             self.separator()
             return
-
+        # IP is empty or valid - ok
         if len(self.ip_ctrl.GetValue().strip()) == 0 or self.ip_ctrl.GetValidator().Validate(self.ip_ctrl):
             pass
         else:
             self.text_output.AppendText("Not valid IP\n")
             self.separator()
             return
-
+        # IP of router is valid - ok
         if self.device_ctrl.GetValidator().Validate(self.device_ctrl):
             pass
         else:
@@ -293,18 +301,9 @@ class MainWindow(wx.Frame):
             self.settings.setValue('device', '192.168.1.1')
         if not self.settings.value('community'):
             self.settings.setValue('community', 'public')
-        ''' It's about default MAC and IP, but it's not necessary
-        if not self.settings.value('mac'):
-            self.settings.setValue('mac', '00 00 00 00 00 00')
-        if not self.settings.value('ip'):
-            self.settings.setValue('ip', '1.2.3.4')
-        '''
+
         self.device_ctrl.SetValue(self.settings.value('device'))
         self.community_ctrl.SetValue(self.settings.value('community'))
-        ''' Loading MAC and IP from settings, check the lines above - it's not necessary too
-        self.mac_ctrl.SetValue(self.settings.value('mac'))
-        self.ip_ctrl.SetValue(self.settings.value('ip'))
-        '''
 
     # ----------------------------------------------------------------------
     def separator(self):
