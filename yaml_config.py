@@ -37,4 +37,4 @@ class YamlConfig():
         self.settings[option] = value
         with open(self.configfile, 'w') as f:
             self.settings = yaml.dump(self.settings, stream=f,
-                               default_flow_style=False, sort_keys=False)
+                               default_flow_style=False, sort_keys=False, allow_unicode=True)
